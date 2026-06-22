@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calorie Tracker App</title>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #2c3e50;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .upload-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .upload-box {
+      border: 2px dashed #3498db;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+      background-color: #f8f9fa;
+      border-color: #2980b9;
+    }
+
+    .upload-box i {
+      font-size: 2rem;
+      color: #3498db;
+      margin-bottom: 10px;
+    }
+
+    .upload-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .preview-container {
+      max-width: 100%;
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .preview-card {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .preview-image {
+      width: 100%;
+      max-height: 350px;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+
+    .info-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 20px 0;
+      color: #3498db;
+      font-size: 1.2rem;
+    }
+
+    .circular-progress {
+      width: 60px;
+      height: 60px;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    .circular-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .circular-progress circle {
+      fill: none;
+      stroke-width: 5;
+    }
+
+    .circular-progress .bg {
+      stroke: #e0e0e0;
+    }
+
+    .circular-progress .progress {
+      stroke: #3498db;
+      stroke-dasharray: 188.4;
+      stroke-dashoffset: 188.4;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .calorie-cards {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #3498db, #2ecc71);
+      border-radius: 15px;
+      padding: 20px;
+      color: white;
+      width: 100%;
+      max-width: 280px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .nutrient-indicators {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .nutrient-circle {
+      text-align: center;
+    }
+
+    .nutrient-circle svg {
+      width: 50px;
+      height: 50px;
+      transform: rotate(-90deg);
+    }
+
+    .nutrient-circle circle {
+      fill: none;
+      stroke-width: 4;
+    }
+
+    .nutrient-circle .bg {
+      stroke: rgba(255, 255, 255, 0.2);
+    }
+
+    .nutrient-circle .progress {
+      stroke: #ffffff;
+      stroke-dasharray: 125.6;
+    }
+
+    .nutrient-circle span {
+      display: block;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .card {
+        max-width: 90%;
+      }
+
+      .nutrient-indicators {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Calorie Tracker</h1>
+      <p>Upload or capture a food photo to track calories</p>
+    </div>
+
+    <div class="upload-section">
+      <div class="upload-box" onclick="triggerFileInput()">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Click to upload or drag and drop</p>
+      </div>
+      <div class="upload-buttons">
+        <button class="btn" onclick="triggerFileInput()">Upload Photo</button>
+        <button class="btn" onclick="triggerCamera()">Take Picture</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" onchange="handleFileSelect(event)" />
+    </div>
+
+    <div class="preview-container" id="previewContainer">
+      <div class="preview-card">
+        <img id="previewImage" class="preview-image" alt="Food Preview"/>
+        <p class="info-title">Nutrition Information:</p>
+        <div class="calorie-cards" id="calorieCards"></div>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      Analyzing food...
+      <div class="circular-progress">
+        <svg viewBox="0 0 60 60">
+          <circle class="bg" cx="30" cy="30" r="25"/>
+          <circle class="progress" cx="30" cy="30" r="25"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script>
+    function triggerFileInput() {
+      document.getElementById('fileInput').click();
+    }
+
+    function triggerCamera() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        document.getElementById('cameraInput').click();
+      } else {
+        alert('Camera feature is optimized for mobile devices. Please use the upload option or try on a mobile device.');
+      }
+    }
+
+    async function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        alert('Please upload a valid image (JPEG or PNG)');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size should be less than 5MB');
+        return;
+      }
+
+      const previewContainer = document.getElementById('previewContainer');
+      const previewImage = document.getElementById('previewImage');
+      previewImage.src = URL.createObjectURL(file);
+      previewContainer.style.display = 'block';
+
+      const loading = document.getElementById('loading');
+      loading.style.display = 'block';
+      animateCircularProgress();
+
+      try {
+        const imageUrl = await uploadToImgbb(file);
+        const foodData = await analyzeFood(imageUrl);
+        displayCalorieData(foodData);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to analyze food. Please try again.');
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
+
+    async function uploadToImgbb(file) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('https://api.imgbb.com/1/upload?expiration=600&key=f67246a407f36b713400b4a271261ad0', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error('Image upload failed');
+      return data.data.url;
+    }
+
+    async function analyzeFood(imageUrl) {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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'
+        },
+        body: JSON.stringify({
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Give calories of each item in this image in this below JSON format only\n {items:[{item_name:name of item, total_calories:in kcal, total_protien:in gm , total_carbs: in gm ,total_fats:in gm},...]}'
+              },
+              {
+                type: 'image_url',
+                image_url: { url: imageUrl }
+              }
+            ]
+          }],
+          model: 'meta-llama/llama-4-maverick-17b-128e-instruct',
+          temperature: 0.5,
+          max_completion_tokens: 1024
+        })
+      });
+
+      const data = await response.json();
+      return JSON.parse(data.choices[0].message.content);
+    }
+
+    function animateCircularProgress() {
+      const progressCircle = document.querySelector('.circular-progress .progress');
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress = (progress + 5) % 100;
+        const offset = 188.4 * (1 - progress / 100);
+        progressCircle.style.strokeDashoffset = offset;
+      }, 50);
+      return () => clearInterval(interval);
+    }
+
+    function displayCalorieData(data) {
+      const calorieCards = document.getElementById('calorieCards');
+      calorieCards.innerHTML = '';
+
+      data.items.forEach(item => {
+        const proteinPercent = Math.min((item.total_protien / 50) * 100, 100);
+        const carbsPercent = Math.min((item.total_carbs / 300) * 100, 100);
+        const fatPercent = Math.min((item.total_fats / 70) * 100, 100);
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${item.item_name}</h3>
+          <p>${item.total_calories} kcal</p>
+          <div class="nutrient-indicators">
+            <div class="nutrient-circle">
+              <svg viewBox="0 0 50 50">
+                <circle class="bg" cx="25" cy="25" r="20"/>
+                <circle class="progress" cx="25" cy="25" r="20" style="stroke-dashoffset: ${125.6 * (1 - proteinPercent / 100)}"/>
+              </svg>
+              <span>Protein: ${item.total_protien}g</span>
+            </div>
+            <div class="nutrient-circle">
+              <svg viewBox="0 0 50 50">
+                <circle class="bg" cx="25" cy="25" r="20"/>
+                <circle class="progress" cx="25" cy="25" r="20" style="stroke-dashoffset: ${125.6 * (1 - carbsPercent / 100)}"/>
+              </svg>
+              <span>Carbs: ${item.total_carbs}g</span>
+            </div>
+            <div class="nutrient-circle">
+              <svg viewBox="0 0 50 50">
+                <circle class="bg" cx="25" cy="25" r="20"/>
+                <circle class="progress" cx="25" cy="25" r="20" style="stroke-dashoffset: ${125.6 * (1 - fatPercent / 100)}"/>
+              </svg>
+              <span>Fat: ${item.total_fats}g</span>
+            </div>
+          </div>
+        `;
+        calorieCards.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
